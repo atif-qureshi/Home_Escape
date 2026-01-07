@@ -1,3 +1,26 @@
+# Unity text files
+*.meta        text eol=lf
+*.unity       text eol=lf
+*.prefab      text eol=lf
+*.mat         text eol=lf
+*.asset       text eol=lf
+*.controller  text eol=lf
+*.anim        text eol=lf
+*.terrainlayer text eol=lf
+
+# Shader files
+*.shader      text eol=lf
+*.cginc       text eol=lf
+*.hlsl        text eol=lf
+# Script files
+*.cs          text eol=lf
+# Binary files
+*.png         binary
+*.jpg         binary
+*.fbx         binary
+*.wav         binary
+*.mp3         binary
+*.ogg         binary
 *.unity filter=lfs diff=lfs merge=lfs -text
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
