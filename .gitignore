@@ -118,3 +118,7 @@ MemoryCaptures/
 *.booproj
 *.svd
 >>>>>>> c34c311 (Intialize Project)
+
+# Unity temporary recovery files
+Assets/_Recovery/
+
