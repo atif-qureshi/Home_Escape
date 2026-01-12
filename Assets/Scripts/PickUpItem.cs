@@ -1,9 +1,10 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PickUpItem : MonoBehaviour
 {
-    public string itemName;        // "Key", "M4", etc.
-    public GameObject inventoryUI; // Icon to show in HUD
+    public string itemName;
+    public string keyID;           // ← ADD THIS
+    public GameObject inventoryUI;
     public AudioSource pickupSound;
 
     private bool inReach = false;
@@ -17,27 +18,19 @@ public class PickUpItem : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
-        {
             inReach = true;
-            Debug.Log("Player in reach of " + itemName);
-        }
     }
 
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
-        {
             inReach = false;
-            Debug.Log("Player left reach of " + itemName);
-        }
     }
 
     void Update()
     {
         if (inReach && Input.GetKeyDown(KeyCode.P))
-        {
             CollectItem();
-        }
     }
 
     void CollectItem()
@@ -48,19 +41,21 @@ public class PickUpItem : MonoBehaviour
         if (inventoryUI != null)
             inventoryUI.SetActive(true);
 
-        gameObject.SetActive(false); // Remove from scene
-        Debug.Log(itemName + " picked up");
+        WeaponInventory inv =
+            GameObject.FindWithTag("Player").GetComponent<WeaponInventory>();
 
-        // Optional: notify inventory system
-        WeaponInventory playerInventory = GameObject.FindWithTag("Player").GetComponent<WeaponInventory>();
-        if (playerInventory != null)
+        if (inv != null)
         {
-            switch (itemName)
-            {
-                case "Key": playerInventory.hasKey = true; break;
-                case "Glok": playerInventory.hasGlock  = true; break;
-                case "Knife": playerInventory.hasKnife = true; break;
-            }
+            if (!string.IsNullOrEmpty(keyID))
+                inv.AddKey(keyID);
+
+            if (itemName == "Glok")
+                inv.hasGlock = true;
+
+            if (itemName == "Knife")
+                inv.hasKnife = true;
         }
+
+        gameObject.SetActive(false);
     }
 }
