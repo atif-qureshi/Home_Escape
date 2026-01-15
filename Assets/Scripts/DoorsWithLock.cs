@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class DoorsWithLock: MonoBehaviour
 {
@@ -111,10 +112,12 @@ public class DoorsWithLock: MonoBehaviour
         if (textDisplay == null) return;
 
         textDisplay.SetActive(true);
-        Text t = textDisplay.GetComponent<Text>();
+
+        TMP_Text t = textDisplay.GetComponent<TMP_Text>();
         if (t != null)
             t.text = msg;
     }
+
 
     void OnTriggerEnter(Collider other)
     {
