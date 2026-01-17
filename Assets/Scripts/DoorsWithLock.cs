@@ -1,9 +1,8 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using TMPro;
 
-public class DoorsWithLock: MonoBehaviour
+public class DoorsWithLock : MonoBehaviour
 {
     // Door Settings
     public Transform doorObject;
@@ -28,6 +27,7 @@ public class DoorsWithLock: MonoBehaviour
     // State
     private bool isOpen = false;
     private bool playerIsNear = false;
+    private bool isDestroying = false; // Add flag to track destruction state
 
     // Key system
     public string requiredKeyID = "Key1"; // Key needed to open this door
@@ -45,7 +45,7 @@ public class DoorsWithLock: MonoBehaviour
             textDisplay.SetActive(false);
 
         interactAction = new InputAction(binding: "<Keyboard>/e");
-        interactAction.performed += _ => OnInteractPressed();
+        interactAction.performed += OnInteractPressed;
         interactAction.Enable();
 
         // Find player inventory
@@ -54,18 +54,7 @@ public class DoorsWithLock: MonoBehaviour
             playerInventory = player.GetComponent<WeaponInventory>();
     }
 
-    void Update()
-    {
-        // Smoothly rotate the door
-        Quaternion targetRotation = isOpen ? endRotation : startRotation;
-        doorObject.rotation = Quaternion.Slerp(
-            doorObject.rotation,
-            targetRotation,
-            Time.deltaTime * openSpeed
-        );
-    }
-
-    void OnInteractPressed()
+    private void OnInteractPressed(InputAction.CallbackContext context)
     {
         if (!playerIsNear)
             return;
@@ -82,6 +71,17 @@ public class DoorsWithLock: MonoBehaviour
             OpenDoor();
         else
             CloseDoor();
+    }
+
+    void Update()
+    {
+        // Smoothly rotate the door
+        Quaternion targetRotation = isOpen ? endRotation : startRotation;
+        doorObject.rotation = Quaternion.Slerp(
+            doorObject.rotation,
+            targetRotation,
+            Time.deltaTime * openSpeed
+        );
     }
 
     void OpenDoor()
@@ -118,7 +118,6 @@ public class DoorsWithLock: MonoBehaviour
             t.text = msg;
     }
 
-
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Reach"))
@@ -140,7 +139,69 @@ public class DoorsWithLock: MonoBehaviour
 
     void OnDestroy()
     {
-        interactAction.Disable();
-        interactAction.Dispose();
+        if (isDestroying) return;
+        isDestroying = true;
+
+        try
+        {
+            // IMPORTANT: Unsubscribe from the event first
+            if (interactAction != null)
+            {
+                // Unsubscribe using the same method signature
+                interactAction.performed -= OnInteractPressed;
+
+                // Disable and dispose safely
+                if (interactAction.enabled)
+                    interactAction.Disable();
+
+                interactAction.Dispose();
+                interactAction = null; // Clear reference
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"Error during door cleanup: {e.Message}");
+        }
+    }
+
+    // Alternative: Use OnDisable() which is more reliable than OnDestroy()
+    void OnDisable()
+    {
+        // This will be called when the object is disabled or destroyed
+        CleanupInputAction();
+    }
+
+    private void CleanupInputAction()
+    {
+        if (interactAction == null) return;
+
+        try
+        {
+            // Unsubscribe from the event
+            interactAction.performed -= OnInteractPressed;
+
+            // Only disable if currently enabled
+            if (interactAction.enabled)
+            {
+                interactAction.Disable();
+            }
+
+            // Dispose if not already disposed
+            if (!interactAction.Equals(default(InputAction)))
+            {
+                interactAction.Dispose();
+            }
+        }
+        catch (System.ObjectDisposedException)
+        {
+            // Already disposed, ignore
+        }
+        finally
+        {
+            interactAction = null;
+        }
     }
 }
+
+
+
