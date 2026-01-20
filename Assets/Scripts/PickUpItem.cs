@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using TMPro;
+using UnityEngine.UI;  // ✅ Legacy UI
 using System.Collections;
 
 public class PickUpItem : MonoBehaviour
@@ -8,7 +8,7 @@ public class PickUpItem : MonoBehaviour
     public string keyID;
 
     [Header("UI")]
-    public TextMeshProUGUI pickupText;
+    public Text pickupText; // Legacy Text instead of TMP
     public float textDisplayTime = 2f;
     public GameObject inventoryUI;
 
